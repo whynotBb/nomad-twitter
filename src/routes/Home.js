@@ -4,12 +4,12 @@ import { addDoc, collection } from "firebase/firestore";
 
 const Home = () => {
   const [tweet, setTweet] = useState("");
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
     console.log("click");
     console.log(tweet);
     setTweet("");
-    addDoc(collection(dbService, "tweets"), {
+    await addDoc(collection(dbService, "tweets"), {
       tweet,
       createdAt: Date.now(),
     });
