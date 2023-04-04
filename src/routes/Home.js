@@ -1,31 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { dbService } from "fBase";
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import { addDoc, collection, onSnapshot, orderBy } from "firebase/firestore";
+import { query } from "firebase/database";
+import Tweet from "components/Tweet";
 
-const Home = () => {
+const Home = ({ userObj }) => {
   const [tweet, setTweet] = useState("");
   const [tweets, setTweets] = useState([]);
-  const getTweets = async () => {
-    const dbTweets = await getDocs(collection(dbService, "tweets"));
-    dbTweets.forEach((document) => {
-      const tweetObj = {
-        ...document.data(),
-        id: document.id,
-      };
-      setTweets((prev) => [tweetObj, ...prev]);
-      console.log(tweets);
-    });
-  };
   useEffect(() => {
-    getTweets();
+    const q = query(
+      collection(dbService, "tweets"),
+      orderBy("createdAt", "desc")
+    );
+    onSnapshot(q, (snapshot) => {
+      const tweetArr = snapshot.docs.map((document) => ({
+        id: document.id,
+        ...document.data(),
+      }));
+      setTweets(tweetArr);
+    });
   }, []);
   const onSubmit = async (event) => {
     event.preventDefault();
-    console.log(tweet);
     if (tweet !== "") {
       await addDoc(collection(dbService, "tweets"), {
-        tweet,
+        text: tweet,
         createdAt: Date.now(),
+        creatorId: userObj.uid,
       });
     }
 
@@ -51,9 +52,14 @@ const Home = () => {
         <input type="submit" value="tweet" />
       </form>
       <div>
-        {/* {tweets.map((tweet) => (
-          <div key={}></div>
-        ))} */}
+        {tweets.map((tweet) => (
+          <Tweet
+            key={tweet.id}
+            tweetObj={tweet}
+            isOwner={tweet.creatorId === userObj.uid}
+            // 작성자와 로그인 id를 비교하여 참/거짓 값부여
+          />
+        ))}
       </div>
     </div>
   );
