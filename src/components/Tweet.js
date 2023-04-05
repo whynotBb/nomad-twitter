@@ -1,5 +1,5 @@
 import { dbService } from "fBase";
-import { collection, deleteDoc, doc } from "firebase/firestore";
+import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import React, { useState } from "react";
 const Tweet = ({ tweetObj, isOwner }) => {
   const [editing, setEditing] = useState(false);
@@ -14,8 +14,12 @@ const Tweet = ({ tweetObj, isOwner }) => {
     }
   };
   const toggleEditing = () => setEditing((prev) => !prev);
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
+    await updateDoc(doc(dbService, `tweets/${tweetObj.id}`), {
+      text: newTweet,
+    });
+    setEditing((prev) => !prev);
   };
   const onChange = (e) => {
     const {
@@ -27,11 +31,20 @@ const Tweet = ({ tweetObj, isOwner }) => {
     <div>
       {editing ? (
         <>
-          <form onSubmit={onSubmit}>
-            <input type="text" value={newTweet} required onChange={onChange} />
-            <input type="submit" value="update" />
-          </form>
-          <button onClick={toggleEditing}>cancel</button>
+          {isOwner && (
+            <>
+              <form onSubmit={onSubmit}>
+                <input
+                  type="text"
+                  value={newTweet}
+                  required
+                  onChange={onChange}
+                />
+                <input type="submit" value="update" />
+              </form>
+              <button onClick={toggleEditing}>cancel</button>
+            </>
+          )}
         </>
       ) : (
         <>
