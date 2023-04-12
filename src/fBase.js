@@ -1,9 +1,11 @@
 // import * as firebase from "firebase/app";
 // import "firebase/auth";
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
 import "firebase/database";
 import "firebase/firestore";
+import "firebase/storage";
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 import { addDoc, collection, getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -21,3 +23,4 @@ export const authService = getAuth();
 export const dbService = getFirestore();
 export const dbAddDoc = addDoc;
 export const dbCollection = collection;
+export const storageService = getStorage();
